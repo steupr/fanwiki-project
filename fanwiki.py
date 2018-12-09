@@ -75,6 +75,27 @@ def read_dataframe_from_file(filename=DATA_FILE):
     f.close()
     return df
 
+def get_sample_revisions(df, sample_size=25):
+    df = df[df["number of revisions"] >= 10]
+    random_editors = df.sample(sample_size)
+    d = {}
+    for row in random_editors.itertuples(index=True):
+        d[getattr(row, "_1")] = list(np.random.choice(eval(getattr(row, "_3")),10,False))
+    return d
+
+def get_revision_diff(rev_id):
+    params = {
+        'action': 'query',
+        'prop': 'revisions',
+        'revids': rev_id,
+        'rvdiffto' : 'prev',
+        'format': 'json',
+        'formatversion': 2,  # version 2 is easier to work with
+    }
+    payload = requests.get(WIKIPEDIA_API_ENDPOINT, params=params).json()
+    return payload["query"]["pages"][0]["revisions"][0]["diff"]["body"]
+
+# MAIN FUNCTION
 def main():
     users = get_editor_names([])
     df = build_dataframe(users)
