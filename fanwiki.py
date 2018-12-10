@@ -95,11 +95,23 @@ def get_revision_diff(rev_id):
     payload = requests.get(WIKIPEDIA_API_ENDPOINT, params=params).json()
     return payload["query"]["pages"][0]["revisions"][0]["diff"]["body"]
 
+def write_diff_files(d):
+    for (k, v) in d.items():
+        for rev_id in v:
+            filename = "diff_" + k + "_" + str(rev_id) + ".html"
+            f = open(filename, 'w')
+            f.write(get_revision_diff(rev_id))
+            f.close()
+
 # MAIN FUNCTION
 def main():
-    users = get_editor_names([])
-    df = build_dataframe(users)
-    write_dataframe_to_file(eliminate_blocked_users(df))
+#    users = get_editor_names([])
+#    df = build_dataframe(users)
+#    write_dataframe_to_file(eliminate_blocked_users(df))
+    df = read_dataframe_from_file()
+    d = get_sample_revisions(df)
+    write_diff_files(d)
+
 
 if __name__ == '__main__':
     main()
